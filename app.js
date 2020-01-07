@@ -20,8 +20,8 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static("public"));
 
 app.get("/", (req, res) => {
-  res.render("home", { 
-    startingContent: homeStartingContent,  
+  res.render("home", {
+    startingContent: homeStartingContent,
     posts: posts
   });
 });
@@ -34,6 +34,17 @@ app.get("/contact", (req, res) => {
 });
 app.get("/compose", (req, res) => {
   res.render("compose");
+});
+
+app.get("/posts/:title", (req, res) => {
+  const requestedTitle = req.params.title;
+  posts.forEach(post => {
+    const storedTitle = post.title; //assign each title to storedTitle to compare it later
+
+    if (storedTitle === requestedTitle) {
+      console.log("Match found");
+    }
+  });
 });
 
 app.post("/compose", (req, res) => {

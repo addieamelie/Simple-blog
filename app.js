@@ -2,6 +2,8 @@
 
 const express = require("express");
 const bodyParser = require("body-parser");
+const mongoose = require("mongoose");
+
 const ejs = require("ejs");
 const _ = require("lodash");
 
@@ -9,21 +11,35 @@ const homeStartingContent =
   "Check out the posts from my journey to South East Asia!";
 const aboutContent =
   "Welcom everyone! My name is Cool Traveller and his is my main blog. I post about my everyday adventures, while travelling around the world.";
-const contactContent =
-  "For any enquiries please contact me!";
+const contactContent = "For any enquiries please contact me!";
 
 const app = express();
 
-const posts = [];
+let posts = [];
 
 app.set("view engine", "ejs");
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static("public"));
 
+mongoose.connect("mongodb://localhost:27017/blogDB", {
+  //to connect to MongoDB Atlas change to your own url
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+  useFindAndModify: false
+});
+
+const postSchema = {
+  title: String,
+  content: String
+};
+const Post = mongoose.model("Post", postSchema);
+
 app.get("/", (req, res) => {
-  res.render("home", {
-    startingContent: homeStartingContent,
-    posts: posts
+  Post.find({}, function(err, posts) {
+    res.render("home", {
+      startingContent: homeStartingContent,
+      posts: posts
+    });
   });
 });
 
@@ -51,12 +67,15 @@ app.get("/posts/:title", (req, res) => {
 });
 
 app.post("/compose", (req, res) => {
-  const post = {
+  const post = new Post({
     title: req.body.newTitle,
     content: req.body.newBody
-  };
-  posts.push(post);
-  res.redirect("/");
+  });
+  post.save(err => {
+    if (!err) {
+      res.redirect("/");
+    }
+  });
 });
 
 app.listen(3000, function() {

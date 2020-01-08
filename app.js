@@ -53,16 +53,13 @@ app.get("/compose", (req, res) => {
   res.render("compose");
 });
 
-app.get("/posts/:title", (req, res) => {
-  const requestedTitle = req.params.title;
-  posts.forEach(post => {
-    const storedTitle = post.title; //assign each title to storedTitle to compare it later
-    if (_.lowerCase(storedTitle) === _.lowerCase(requestedTitle)) {
-      res.render("post", {
-        title: post.title,
-        content: post.content
-      });
-    }
+app.get("/posts/:postId", (req, res) => {
+  const requestedPostId = req.params.postId;
+  Post.findOne({_id: requestedPostId}, (err, post) =>{
+    res.render("post", {
+      title: post.title,
+      content: post.content
+   });
   });
 });
 
